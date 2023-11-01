@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Snake Game</title>
+    <style>
+        #gameBoard {
+            width: 450px;
+            height: 450px;
+            border: 1px solid black;
+            position: relative;
+        }
+        .snake, .apple {
+            width: 10px;
+            height: 10px;
+            position: absolute;
+        }
+        .snake {
+            background-color: rgb(0, 255, 0);
+        }
+        .apple {
+            background-color: rgb(255, 0, 0);
+        }
+        button {
+            width: 100px;
+            height: 40px;
+            font-size: 25px;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="color:rgb(0, 87, 0)">Snake~~~</h1>
+    <h3>press 'w','s','a','d' to move upward,downward,leftward,righward</h3>
+    <h3>press "start" button to start the game, press "pause" button to pause the game</h3>
+    <div id="gameBoard"></div>
+    <div>
+        <button id='start-button'>Start</button>
+        <button id='pause-button'>Pause</button>
+    </div>    
+    <script>
+        const board = document.getElementById('gameBoard');
+        const boardSize = 45;
+        const snake = [{ x: 22, y: 22 }];
+        let apple = { x: 15, y: 15 };
+        let direction = { x: -1, y: 0 };
+        let score = 0;
+        let isGameRunning = false;
+        const startButton = document.getElementById('start-button');
+        const pauseButton = document.getElementById('pause-button');
+        const gameBoard = document.getElementById('game-board');
+        startButton.addEventListener('click', startGame);
+        pauseButton.addEventListener('click', pauseGame);
+        function startGame() {
+            if (!isGameRunning){
+                isGameRunning = true;
+                gameInterval = setInterval(updateGame,100);
+            }
+        }
+        function pauseGame() {
+            if (isGameRunning) {
+                isGameRunning = false;
+                clearInterval(gameInterval);
+            }
+        }
+        function updateGame() {
+            const newHead = { x: snake[0].x + direction.x, y: snake[0].y + direction.y };
+            snake.unshift(newHead);
+            if (newHead.x === apple.x && newHead.y === apple.y) {
+                score++;
+                apple.x = Math.floor(Math.random() * boardSize);
+                apple.y = Math.floor(Math.random() * boardSize);
+            } else {
+                snake.pop();
+            }
+            if (
+                newHead.x < 0 || newHead.x >= boardSize ||
+                newHead.y < 0 || newHead.y >= boardSize ||
+                snake.slice(1).some(segment => segment.x === newHead.x && segment.y === newHead.y)
+            ) {
+                clearInterval(gameInterval);
+                alert('Game Over! Score: ' + score);
+            }
+            drawGame();
+        }
+        function drawGame() {
+            board.innerHTML = '';
+            const newApple = document.createElement('div');
+            newApple.className = 'apple';
+            newApple.style.left = apple.x * 10 + 'px';
+            newApple.style.top = apple.y * 10 + 'px';
+            board.appendChild(newApple);
+            snake.forEach(segment => {
+                const newSnake = document.createElement('div');
+                newSnake.className = 'snake';
+                newSnake.style.left = segment.x * 10 + 'px';
+                newSnake.style.top = segment.y * 10 + 'px';
+                board.appendChild(newSnake);
+            });
+        }
+        function handleKeydown(event) {
+            switch (event.key) {
+                case 'w':
+                case 'W':
+                    if (direction.y !== 1) {
+                        direction.x = 0;
+                        direction.y = -1;
+                    }
+                    break;
+                case 's':
+                case 'S':
+                    if (direction.y !== -1) {
+                        direction.x = 0;
+                        direction.y = 1;
+                    }
+                    break;
+                case 'a':
+                case 'A':
+                    if (direction.x !== 1) {
+                        direction.x = -1;
+                        direction.y = 0;
+                    }
+                    break;
+                case 'd':
+                case 'D':
+                    if (direction.x !== -1) {
+                        direction.x = 1;
+                        direction.y = 0;
+                    }
+                    break;
+            }
+        }
+        document.addEventListener('keydown', handleKeydown);
+    </script>
+</body>
+</html>
+
